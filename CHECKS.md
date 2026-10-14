@@ -1,40 +1,33 @@
-# Kiểm chứng Ảnh Gọn 1.1.0
+# Kiểm chứng Ảnh Gọn 2.0.0
 
-Ngày: 14/10/2026. App tĩnh chạy tại subpath `/Nen-Anh/` như GitHub Pages.
+Ngày 14/10/2026. Preview tại `/Nen-Anh/`, cùng subpath GitHub Pages.
 
 ## Kết quả
 
-- **18/18 Chromium** (14 nhóm trình duyệt, 4 nhóm logic) kiểm tra cục bộ. Cùng bộ kiểm tra chạy tự động trên **Chromium và WebKit** trong GitHub Actions; xem [kết quả CI](https://github.com/dammeiosvn/Nen-Anh/actions). WebKit của bản 1.1.0 được kiểm tra ở CI, không ghi nhận là đã thử trên iPhone thật.
-- Kiểm tra cú pháp, manifest/icon, asset cache offline, import codec cục bộ và `git diff --check` đạt.
-- Đã xem render WebKit ở 390×844 và 390×300; kiểm tra biên điều khiển/ô nhập ở 320×568, 820×1180 và 667×375.
+- **26/26 Chromium** cục bộ: 20 nhóm trình duyệt, 6 nhóm logic. Cùng bộ kiểm tra chạy trên Chromium/WebKit trong [GitHub Actions](https://github.com/dammeiosvn/Nen-Anh/actions).
+- Kiểm tra cú pháp, manifest/icon, asset offline, codec và wrapper OCR cục bộ đạt.
+- Đã xem ảnh render giao diện sáng/tối, giao hàng và màn hình 320×568. Kiểm tra giới hạn điều khiển/ngăn kéo ở 390×844, 320×568, 820×1180, 667×375 và 390×300.
 
-## Các trường hợp
+## Các kiểm tra chính
 
-1. Mở bộ chọn bằng nút Chọn ảnh và xác nhận file chooser cho phép nhiều tệp; cấu hình JPEG/1600px/40%, thông số pixel và dung lượng byte thực tế; nhận lại cùng ảnh không thêm bản trùng dù lastModified khác.
-2. Nhập mức 73%, chặn 100%, cạnh dài tùy ý 1234px; đổi lại 1600px lấy dữ liệu gốc, lưu thiết lập qua reload.
-3. PNG alpha; WebP thật có magic RIFF/WEBP, decoder đọc đúng alpha. Tải xuống và kiểm tra bằng Sharp, không chỉ kiểm tra đuôi.
-4. JPEG EXIF orientation=6 chỉ xoay một lần; ảnh nhỏ không upscale; kiểm tra các kênh màu sRGB mẫu sau xuất JPEG.
-5. Chia sẻ đúng ảnh được chọn, File thật, đúng MIME và byte JPEG, không gắn title/text; hủy bảng chia sẻ không báo lỗi.
-6. Clipboard JSON giải mã ra đúng byte ảnh đã xuất; URL chạy Phím tắt chỉ chứa tên mã hóa URL và input=clipboard.
-7. Ảnh hỏng không làm dừng hàng đợi; ảnh tốt vẫn chia sẻ được.
-8. Hủy WebP, đổi sang JPEG, chạy lại; không nhận kết quả cũ từ worker đã hủy.
-9. Giao diện theo hệ thống và lựa chọn sáng/tối; viền nút 1px đúng #D6D6D6/#474747. Hai hàng đúng thứ tự, nút luôn vuông và ≥44px, vùng giữa không đè lên hàng nút; modal khi chiều cao giảm, cỡ chữ ô nhập ≥16px; thao tác touch bằng Playwright tap.
-10. Service worker mở lại app và xuất WebP không cần mạng/máy chủ tại subpath Pages.
-11. Tỷ lệ ảnh dọc/ngang/vuông/panorama, làm tròn cạnh và không upscale.
-12. Kiểm tra số nguyên, số âm, rỗng, phần trăm sai và cạnh dài.
-13. Khôi phục thiết lập lỗi; giữ thiết lập hợp lệ.
-14. Phần trăm tiết kiệm theo byte; tên tệp an toàn; URL Clipboard không chứa dữ liệu ảnh.
-15. PNG bị đổi đuôi/MIME thành JPEG được mã hóa thành JPEG thật; chỉ giữ tệp gốc khi magic bytes, MIME và định dạng đích đều khớp.
-16. Tắt nén + giữ kích thước + giữ định dạng trả về byte gốc, không mất dữ liệu do mã hóa lại không cần thiết.
-17. Đường chọn từ Tệp nhận cả nhóm, bỏ tệp PDF, nối lượt chọn tiếp theo và bỏ ảnh trùng; camera dùng input riêng không bật multiple.
-18. 12 ảnh trong phiên: vùng giữa cuộn tới ảnh cuối, hai hàng nút và nút Chia sẻ giữ nguyên vị trí; nút chưa chọn có nền trắng/đen theo hệ thống.
+| Luồng | Kiểm chứng |
+|---|---|
+| Chọn nhiều ảnh | Bộ chọn nhận cả FileList, nối nhóm tiếp theo, bỏ ảnh trùng dù thời gian tệp thay đổi, bỏ PDF; camera riêng |
+| Cấu hình ngăn kéo | Sửa cả 3 thông số nhưng chưa xử lý trước Áp dụng; Hủy giữ cấu hình cũ; số sai bị chặn; cấu hình riêng tồn tại qua reload |
+| Nhóm đang chọn | Tổng dung lượng, phần trăm và nhãn Gửi cập nhật khi bỏ chọn; không dùng tổng cả phiên thay cho nhóm |
+| JPEG/PNG/WebP | File tải xuống đọc bằng Sharp; WebP có RIFF/WEBP thật; alpha, EXIF, tỷ lệ, màu sRGB mẫu và không upscale |
+| Hàng đợi | Hủy rồi đổi định dạng không xuất kết quả cũ; ảnh hỏng không chặn ảnh tốt |
+| Worker/cache | Ba ảnh dùng một worker WebP; quay về cấu hình được cache không thêm lần giải mã/resize; kiểm tra fallback khi không có OffscreenCanvas |
+| OCR thực | PNG chữ tiếng Việt được tạo bằng Sharp; Tesseract đọc từ pixel, regex trả đúng Công ty An Bình sau Đơn vị:; không phát sinh request ra dịch vụ OCR ngoài |
+| Bảo vệ nhập tay | Dùng OCR trễ có kiểm soát: không ghi đè tên Sếp sửa, mỗi ảnh có tên riêng, sao chép đúng nội dung ô hiện tại |
+| Regex | Chữ hoa, không dấu, dấu hai chấm Unicode, NFD, tên xuống dòng; dừng trước địa chỉ/SĐT, không coi trường kế tiếp hay số là tên |
+| Offline | Sau khi dùng OCR đầy đủ, mất mạng rồi reload vẫn xuất WebP và đọc tên từ ảnh mới bằng model cache |
+| Chia sẻ/Phím tắt | Đúng nhóm File thật, MIME/byte và tên; hủy share bình thường; clipboard JSON giải mã ra đúng tệp, URL chỉ chứa tên Phím tắt |
 
 ## Phương pháp và giới hạn
 
-Tệp PNG/JPEG thật được tạo bằng Sharp cho fixture màu, alpha, entropy và orientation. Output tải xuống được đọc bằng decoder; API chia sẻ/clipboard/điều hướng Shortcuts chỉ được thay ở ranh giới OS để quan sát dữ liệu. Không mô phỏng thành công ứng dụng nhận bên ngoài.
+Kiểm tra codec dùng ảnh thật có màu, alpha, entropy và EXIF. Kiểm tra OCR thực dùng ảnh chữ rõ được dựng để tái tạo kết quả; không dùng text nhúng thay cho bước nhận dạng pixel. Luồng bảo vệ nhập tay mô phỏng độ trễ OCR để kiểm tra xung đột. Chia sẻ, clipboard và điều hướng Shortcuts được thay tại ranh giới OS, không giả xác nhận nhóm chat đã nhận ảnh.
 
-Chromium dùng offline emulation. WebKit được thử khi **dừng máy chủ origin**, rồi reload và xuất WebP từ cache. Playwright WebKit có lỗi chặn cả phản hồi Service Worker khi dùng setOffline(true): [microsoft/playwright#42775](https://github.com/microsoft/playwright/issues/42775). Không bỏ kiểm tra offline; sử dụng mất kết nối origin để kiểm tra CacheStorage và worker thực.
+Chromium offline dùng setOffline. WebKit mất origin server để kiểm tra Service Worker thực vì [Playwright #42775](https://github.com/microsoft/playwright/issues/42775) chặn cả phản hồi cache khi dùng setOffline. OCR cache tải theo nhu cầu, không nằm trong gói shell nén ảnh ban đầu.
 
-Chưa thử iPhone/iPad thật: chọn ảnh/chụp camera, HEIC decoder của iOS, font Apple Braille, bảng chia sẻ sang nhóm chat, nhận trong Shortcuts, HDR/Display P3 và cách iOS đóng tiến trình thiếu RAM. WebKit Linux không phải WKWebView trên iPhone. Các trường hợp này cần thử trên thiết bị sau khi bật Pages.
-
-Repo đã bật GitHub Pages khi sửa bản 1.1.0. Bộ code được phục vụ từ main/root; kết quả kiểm tra cục bộ/CI không thay cho kiểm chứng camera và Photos picker trên iPhone thật.
+Chưa thử bản 2.0 trên iPhone thật: camera, Photos picker, HEIC decoder hệ thống, bảng chia sẻ vào nhóm, Shortcuts, HDR/Display P3, giới hạn RAM và việc iOS tự dọn cache. WebKit Linux không phải WKWebView iPhone. OCR chữ mờ, nghiêng, viết tay hoặc thiếu Đơn vị: có thể cần Sếp nhập/sửa tay; app không cam kết tên đúng tuyệt đối.

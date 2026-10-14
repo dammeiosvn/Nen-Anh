@@ -1,6 +1,25 @@
-# Ảnh Gọn · Nen-Anh
+# Ảnh Gọn 2.0 · Nen-Anh
 
-WebClip nén ảnh và thu nhỏ để gửi báo cáo trên iPhone. Chạy trên GitHub Pages, toàn bộ ảnh xử lý trong thiết bị, không cần máy chủ xử lý ảnh.
+WebClip nén ảnh, thu nhỏ và đọc tên khách để gửi báo cáo giao hàng trên iPhone. Chạy trên GitHub Pages; toàn bộ ảnh, OCR và tên khách xử lý trên thiết bị.
+
+## Giao diện ngăn kéo và chế độ giao hàng
+
+- Màn hình chính: **Chọn ảnh**, ô cấu hình hiện tại và **Gửi N ảnh**. Nút **•••** mở ngăn kéo Chụp ảnh, Chọn từ Tệp, Lưu tệp, Phím tắt và Dọn ảnh.
+- Bấm ô cấu hình để chọn **Gửi ảnh giao hàng**, **Gửi nhanh**, **Chứng từ rõ chữ** hoặc **Giữ kích thước**. Mở Tùy chỉnh để đặt cạnh dài, mức giảm 0–99%, JPEG/PNG/WebP và bật/tắt đọc tên. Các thay đổi chỉ chạy khi bấm **Áp dụng**; Hủy không đổi cấu hình.
+- **Lưu cấu hình riêng**: đặt tên và lưu tối đa 8 cấu hình; có thể lưu đè cấu hình trùng tên. Cài đặt và cấu hình riêng được nhớ qua lần mở app.
+- **Gửi ảnh giao hàng** có sẵn JPEG/1600px/mục tiêu giảm 40% và OCR tên khách. Chọn chế độ rồi thêm ảnh. Mỗi ảnh có ô tên riêng, có thể sửa ngay và bấm icon sao chép. OCR chạy sau hàng đợi xử lý ảnh; gửi ảnh không cần chờ tên đọc xong.
+- OCR đọc ảnh gốc, rồi regex bóc phần sau **Đơn vị:**. Chấp nhận chữ hoa/thường, dấu hai chấm thường/toàn chiều rộng, nhãn không dấu và tên xuống dòng; dừng trước SĐT/Điện thoại/Địa chỉ/Mã đơn. Không tự đổi dấu hoặc kiểu viết của tên. Tên Sếp nhập tay không bị kết quả OCR muộn ghi đè.
+- Nếu không thấy nhãn hoặc ảnh khó đọc, ô vẫn sửa được. Bấm **Đọc lại** để thử lại. OCR không bảo đảm đúng với chữ mờ, ảnh nghiêng, chữ viết tay hoặc bố cục phức tạp; kiểm tra tên trước khi sao chép.
+- Thống kê lớn và thanh gửi tính theo **nhóm đang chọn**; mục **Cả phiên** mở ra thống kê toàn bộ. Các thông số chi tiết của từng ảnh nằm trong mục thu gọn.
+
+## Hiệu năng và dữ liệu
+
+- Một worker WebP được dùng lại cho cả lô, giữ bộ mã hóa đã khởi tạo; dữ liệu pixel được dọn giữa các ảnh. Khi hủy, worker đang làm được kết thúc để tránh xuất kết quả cũ.
+- Giải mã/thu nhỏ dùng OffscreenCanvas trong worker khi máy hỗ trợ. Tự dùng canvas trên luồng chính khi không hỗ trợ hoặc decoder worker không đọc được ảnh đó; không yêu cầu phiên bản Safari cụ thể để app chạy.
+- Cache kết quả của phiên giới hạn **24MB**, tối đa **40 kết quả**, mỗi ảnh tối đa **2 cấu hình**. Quay về cấu hình còn trong cache không giải mã/nén lại; Dọn ảnh giải phóng cache liên quan. Không giữ toàn bộ bitmap của lô.
+- Ảnh thu nhỏ sau xử lý được dựng từ **tệp kết quả thật**, gồm các thay đổi do encoder, thay vì chỉ từ canvas trước nén.
+- Tesseract.js 6.0.1, core 6.0.0 và mô hình tiếng Việt được đóng gói trong repo. Lần đầu dùng giao hàng sẽ tải bộ đọc chữ vài MB từ chính site này. Ảnh không gửi lên dịch vụ OCR bên ngoài. Các asset OCR được cache khi dùng; có thể đọc offline sau lần chuẩn bị đầy đủ, nếu iOS vẫn giữ cache. App nén/resize offline độc lập với OCR.
+- Worker OCR dùng lại trong lô và được dọn sau 45 giây không hoạt động. Tên khách và ảnh chỉ tồn tại trong phiên; không lưu tên khách vào cài đặt hay gửi qua mạng.
 
 ## Mở trên GitHub Pages
 
@@ -16,9 +35,9 @@ Mở địa chỉ bằng Safari → Chia sẻ → **Thêm vào Màn hình chính
 ## Sử dụng
 
 - **Chọn ảnh**: chọn nhiều ảnh trong một lượt từ thư viện ảnh iOS. **Chọn từ Tệp** là đường nhập nhiều ảnh từ Files, cũng dùng khi bộ chọn Photos trên máy không thuận tiện. Chọn thêm lượt sau sẽ nối vào phiên hiện tại; bỏ qua ảnh trùng và tệp không phải ảnh. **Chụp ảnh** dùng camera riêng. App tự xử lý theo cấu hình hiện tại, mặc định **JPEG · cạnh dài 1600px · mục tiêu giảm 40% dung lượng**.
-- **Nén ảnh → Nhập số khác**: nhập số nguyên **0–99%**, OK. 40% nghĩa là mục tiêu tệp còn tối đa 60% dung lượng gốc; 0 tắt mục tiêu nén. Có mức nhanh 20/40/60%.
-- **Kích thước**: nhập cạnh dài 1–100.000px hoặc Giữ nguyên. 3024×4032 đặt 1600px thành 1200×1600. Không cắt, không kéo méo, không tăng kích thước ảnh nhỏ.
-- **Định dạng**: JPEG, PNG, WebP. PNG/WebP giữ alpha; JPEG đặt nền trắng. WebP dùng bộ mã hóa WASM đóng gói trong repo, không cần CDN.
+- **Ô cấu hình → Tùy chỉnh**: nhập mức giảm **0–99%**, cạnh dài **0–100.000px** và định dạng, rồi **Áp dụng**. 40% là mục tiêu còn tối đa 60% dung lượng gốc. **0% = Không ép dung lượng**; thu nhỏ/chuyển định dạng vẫn có thể làm nhẹ tệp.
+- **Cạnh dài**: 0 giữ kích thước. 3024×4032 đặt 1600px thành 1200×1600. Không cắt, kéo méo hoặc tăng kích thước ảnh nhỏ.
+- **Định dạng trong ngăn kéo cấu hình**: JPEG, PNG, WebP. PNG/WebP giữ alpha; JPEG đặt nền trắng. WebP dùng WASM trong repo, không cần CDN.
 - **Chia sẻ ảnh**: chọn ảnh bằng checkbox, chờ xử lý xong rồi mở bảng chia sẻ iOS bằng một lần bấm. App gửi các File ảnh thật, không kèm một tệp văn bản tên ảnh.
 - **Lưu tệp**: mở danh sách liên kết tải từng tệp; dùng khi thiết bị hoặc app nhận không hỗ trợ chia sẻ.
 - **Phím tắt**: gửi ảnh đã xử lý/ảnh gốc qua bảng chia sẻ, hoặc chuẩn bị dữ liệu rồi chạy Phím tắt theo tên qua clipboard. Xem [hướng dẫn cầu nối](docs/SHORTCUTS.html).
@@ -35,8 +54,7 @@ Mục tiêu dung lượng khác với tham số chất lượng của JPEG/WebP.
 - Canvas đầu ra là **sRGB**, đúng chiều EXIF. Không thêm bộ lọc hay chỉnh mặt. HDR/Display P3 có thể khác độ sáng/màu so với Photos; không bảo đảm giữ HDR hay metadata camera/GPS sau mã hóa.
 - HEIC/HEIF đầu vào dùng decoder hệ thống khi Safari hỗ trợ. Nếu không đọc được, app giữ tệp gốc để gửi sang Phím tắt; không giả chuyển đổi bằng đổi đuôi. HEIC/TIFF/GIF đầu ra dùng tác vụ Convert Image trong Shortcuts. GIF đầu vào xuất một khung ảnh tĩnh.
 - Mỗi phiên tối đa 50 ảnh, mỗi tệp 80MB. Bề mặt xuất giới hạn 16.777.216 pixel/cạnh tối đa 16.384px để tránh canvas quá lớn. Chọn cạnh dài nhỏ hơn khi cần. Việc giải mã còn phụ thuộc bộ nhớ và decoder của thiết bị.
-- Apple Braille được ưu tiên trong CSS, có phông hệ thống Apple dự phòng cho ký tự thiếu. Tám nút vuông bo góc như icon ứng dụng, SVG phía trên và nhãn phía dưới; lựa chọn bật màu xanh dương. Viền 1px **#D6D6D6** ở chế độ sáng, **#474747** ở chế độ tối.
-- Hàng trên: Chọn ảnh, Chụp ảnh, Kích thước, Nén ảnh. Hàng dưới: Định dạng, Phím tắt, Lưu tệp, Dọn ảnh. Vùng kết quả cuộn độc lập ở giữa, nút Chia sẻ luôn hiện ngay phía trên hàng dưới; hai hàng giữ bốn nút trên điện thoại, iPad và khi xoay ngang.
+- Apple Braille ưu tiên, phông hệ thống Apple dự phòng cho ký tự thiếu. Các nút bo góc, lựa chọn màu xanh; viền 1px **#D6D6D6** sáng, **#474747** tối. Hai ngăn kéo thu gọn các công cụ; danh sách ảnh cuộn độc lập, nút Gửi luôn hiện.
 
 ## Phím tắt
 
@@ -61,4 +79,4 @@ Local preview: http://127.0.0.1:4173/Nen-Anh/. Có thể dùng browser có sẵn
 
 `npm run vendor` tái tạo các asset WebP từ phiên bản khóa trong package-lock; `npm run icons` tái tạo PNG từ SVG. Codec và giấy phép đã nằm trong repo, không tải runtime từ bên ngoài. Xem [CHECKS.md](CHECKS.md) và [THIRD_PARTY.md](THIRD_PARTY.md).
 
-Khi phát hành bản mới, cập nhật VERSION trong `js/utils.js`, phiên bản package, tên cache trong `sw.js` và cache URL của JS/CSS trong HTML. App chờ Sếp lưu/dọn phiên trước khi kích hoạt bản cập nhật để tránh mất ảnh đang làm. Nếu đang thấy giao diện cũ, mở app khi có mạng, lưu/dọn phiên rồi vào **Cài đặt → Cập nhật ứng dụng**. Phiên bản giao diện mới là **1.1.0**.
+Khi phát hành bản mới, cập nhật VERSION trong `js/utils.js`, phiên bản package, tên cache trong `sw.js` và cache URL của JS/CSS trong HTML. App chờ Sếp lưu/dọn phiên trước khi kích hoạt bản cập nhật để tránh mất ảnh đang làm. Nếu đang thấy giao diện cũ, mở app khi có mạng, lưu/dọn phiên rồi vào **Cài đặt → Cập nhật ứng dụng**. Phiên bản mới là **2.0.0**.

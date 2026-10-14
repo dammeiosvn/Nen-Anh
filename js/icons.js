@@ -14,6 +14,11 @@ const paths = {
   arrow: '<path d="M5 12h14m-5-5 5 5-5 5"/>',
   play: '<path d="m8 4 12 8-12 8V4Z"/>',
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>',
+  copy: '<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V3H3v13h5"/>',
+  more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+  sliders: '<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="var(--card)"/><circle cx="15" cy="17" r="3" fill="var(--card)"/>',
+  chevron: '<path d="m9 5 7 7-7 7"/>',
+  delivery: '<path d="M3 7h11v12H3zM14 10h4l3 4v5h-7M3 4h8"/><circle cx="7" cy="19" r="2" fill="var(--card)"/><circle cx="17" cy="19" r="2" fill="var(--card)"/>',
 };
 export function icon(name, className = '') {
   return `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.photos}</svg>`;

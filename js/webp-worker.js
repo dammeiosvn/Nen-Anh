@@ -3,6 +3,7 @@ let image;
 self.onmessage = async ({ data: message }) => {
   const { id, action } = message;
   try {
+    if (action === 'clear') { image = null; return; }
     if (action === 'prepare') {
       image = { data: new Uint8ClampedArray(message.pixels), width: message.width, height: message.height };
       self.postMessage({ id, ready: true });

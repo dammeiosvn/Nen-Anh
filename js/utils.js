@@ -1,5 +1,5 @@
-export const VERSION = '1.1.0';
-export const DEFAULTS = Object.freeze({ longEdge: 1600, reduction: 40, format: 'jpeg', theme: 'system', shortcutName: 'Ảnh Gọn – Nhận ảnh' });
+export const VERSION = '2.0.0';
+export const DEFAULTS = Object.freeze({ longEdge: 1600, reduction: 40, format: 'jpeg', mode:'standard', theme: 'system', shortcutName: 'Ảnh Gọn – Nhận ảnh' });
 export const MIME = Object.freeze({ jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' });
 export function imageMime(bytes) {
   if (bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return MIME.jpeg;
@@ -13,6 +13,7 @@ export function settingsFrom(value = {}) {
     longEdge: Number.isInteger(value.longEdge) && value.longEdge >= 0 && value.longEdge <= 100000 ? value.longEdge : DEFAULTS.longEdge,
     reduction: Number.isInteger(value.reduction) && value.reduction >= 0 && value.reduction <= 99 ? value.reduction : DEFAULTS.reduction,
     format: Object.hasOwn(MIME, value.format) ? value.format : DEFAULTS.format,
+    mode: value.mode === 'delivery' ? 'delivery' : 'standard',
     theme: ['system', 'light', 'dark'].includes(value.theme) ? value.theme : DEFAULTS.theme,
     shortcutName: typeof value.shortcutName === 'string' && value.shortcutName.trim() ? value.shortcutName.trim().slice(0, 120) : DEFAULTS.shortcutName,
   };

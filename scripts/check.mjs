@@ -12,4 +12,10 @@ const sw = await readFile(root + 'sw.js','utf8');
 for (const match of sw.matchAll(/'\.\/([^']+)'/g)) if (match[1] !== 'index.html') await access(root + match[1]);
 const vendor = await readFile(root + 'vendor/webp/encode.js','utf8');
 assert.ok(vendor.includes("from './features.js'"));
+for (const file of ['tesseract.esm.min.js','worker.min.js','lang/vie.traineddata.gz']) await access(root+'vendor/ocr/'+file);
+for (const suffix of ['','-simd','-lstm','-simd-lstm']) {
+  await access(root+'vendor/ocr/core/tesseract-core'+suffix+'.wasm');
+  const wrapper = await readFile(root+'vendor/ocr/core/tesseract-core'+suffix+'.wasm.js','utf8');
+  assert.ok(wrapper.includes('locateFile:(file)=>new URL("core/"+file,self.location.href).href'));
+}
 console.log('JavaScript syntax, manifest icons, offline shell and local codec imports passed.');
