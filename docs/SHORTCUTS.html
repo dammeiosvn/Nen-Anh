@@ -1,0 +1,24 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="light dark"><title>Phím tắt · Ảnh Gọn</title><style>body{font:17px/1.65 -apple-system,system-ui,sans-serif;max-width:720px;margin:auto;padding:24px 20px 60px;background:light-dark(#f4f5f8,#0c0d10);color:light-dark(#161a23,#f4f5f9)}a{color:#007aff}h1{font-size:28px}h2{font-size:21px;margin-top:30px}li{margin-block:12px}code{background:light-dark(#e7e9ef,#252830);padding:2px 6px;border-radius:5px}aside{padding:16px;border-radius:18px;background:light-dark(#eaf3ff,#14253a)}.back{display:inline-block;margin-bottom:10px}</style></head><body>
+<a class="back" href="../">← Về Ảnh Gọn</a><h1>Chuyển ảnh sang Phím tắt</h1>
+<p>Có hai cách. Bảng chia sẻ gửi các tệp ảnh trực tiếp. Chạy theo tên dùng một Phím tắt cầu nối để nhận nhóm ảnh từ clipboard.</p>
+<h2>Cách 1 · Gửi tệp ảnh trực tiếp</h2><ol>
+<li>Trong Shortcuts, tạo hoặc mở Phím tắt xử lý ảnh của Sếp.</li>
+<li>Ở phần chi tiết, bật <strong>Hiển thị trong bảng chia sẻ</strong>; chọn đầu vào <strong>Hình ảnh</strong> (thêm Tệp nếu cần).</li>
+<li>Dùng <strong>Đầu vào phím tắt</strong> cho các hành động chuyển đổi ảnh, lưu vào album, đóng dấu hoặc tác vụ khác.</li>
+<li>Trong Ảnh Gọn, chờ xử lý xong → <strong>Chia sẻ ảnh</strong> → chọn Phím tắt đó. Nếu chưa thấy, dùng Sửa tác vụ trong bảng chia sẻ để bật.</li></ol>
+<h2>Cách 2 · Phím tắt cầu nối theo tên</h2>
+<p>Tạo Phím tắt tên <strong>Ảnh Gọn – Nhận ảnh</strong>. Tên khác cũng được: nhập đúng tên đó trong app.</p>
+<ol><li>Thêm hành động <strong>Lấy bộ nhớ đệm / Get Clipboard</strong>. Đây là văn bản JSON do app vừa ghi.</li>
+<li>Thêm <strong>Lấy từ điển từ đầu vào / Get Dictionary from Input</strong>, đầu vào là Bộ nhớ đệm.</li>
+<li>Thêm <strong>Lấy giá trị từ điển / Get Dictionary Value</strong>, khóa <code>images</code>.</li>
+<li>Thêm <strong>Lặp lại với từng mục / Repeat with Each</strong> của danh sách <code>images</code>.</li>
+<li>Bên trong vòng lặp: lấy giá trị khóa <code>data</code> từ <strong>Mục lặp lại / Repeat Item</strong>.</li>
+<li>Thêm <strong>Mã hóa Base64 / Base64 Encode</strong>, đổi chế độ thành <strong>Giải mã / Decode</strong>, đầu vào là giá trị <code>data</code>.</li>
+<li>Thêm <strong>Lấy hình ảnh từ đầu vào / Get Images from Input</strong>, đầu vào là kết quả đã giải mã.</li>
+<li>Đưa ảnh đó vào <strong>Chuyển đổi hình ảnh / Convert Image</strong> nếu muốn HEIF/HEIC, TIFF hoặc GIF. Có thể thay bằng bất kỳ tác vụ ảnh nào của Sếp.</li>
+<li>Thêm <strong>Lưu vào album ảnh / Save to Photo Album</strong> hoặc <strong>Thêm vào biến / Add to Variable</strong> tên <code>AnhDaNhan</code>. Nếu gom vào biến, đặt hành động <strong>Chia sẻ / Share</strong> với biến này sau khi kết thúc vòng lặp.</li></ol>
+<aside>Trong app: chọn ảnh đã xong → Phím tắt → <strong>1. Chuẩn bị ảnh</strong> → <strong>2. Chạy Phím tắt</strong>. Cho phép ghi clipboard/mở Shortcuts nếu iOS hỏi. Nhóm quá lớn nên dùng Cách 1.</aside>
+<p>Ảnh được gửi là bản đã xử lý; nút Gửi ảnh gốc dùng khi Safari chưa đọc được định dạng hoặc Sếp muốn xử lý toàn bộ bằng iOS. Clipboard sau đó chứa dữ liệu ảnh; có thể sao chép một nội dung khác để thay thế.</p>
+<p>Không có liên kết iCloud cài sẵn cho Phím tắt này. Các bước trên tạo được cầu nối ngay trên iPhone, không yêu cầu cài cấu hình hay cung cấp tài khoản.</p>
+<p><a href="https://support.apple.com/guide/shortcuts/apd624386f42/ios">Tài liệu Apple về gọi Phím tắt theo tên</a></p>
+</body></html>

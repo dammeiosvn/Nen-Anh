@@ -1,0 +1,17 @@
+{
+  "name": "anh-gon",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:unit": "node --test tests/unit.test.mjs",
+    "vendor": "node scripts/vendor.mjs",
+    "icons": "node scripts/icons.mjs"
+  },
+  "dependencies": { "@jsquash/webp": "1.5.0" },
+  "devDependencies": { "playwright": "1.62.1", "sharp": "0.34.5" },
+  "engines": { "node": ">=20" }
+}

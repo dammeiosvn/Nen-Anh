@@ -1,0 +1,15 @@
+import { readdir,readFile,access } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import assert from 'node:assert/strict';
+const root = fileURLToPath(new URL('../',import.meta.url));
+for (const dir of ['js','scripts']) for (const file of await readdir(root + dir)) if (/\.(js|mjs)$/.test(file)) execFileSync(process.execPath,['--check',root + dir + '/' + file]);
+execFileSync(process.execPath,['--check',root + 'sw.js']);
+const manifest = JSON.parse(await readFile(root + 'manifest.webmanifest','utf8'));
+assert.equal(manifest.scope,'./'); assert.equal(manifest.start_url,'./');
+for (const item of manifest.icons) await access(root + item.src);
+const sw = await readFile(root + 'sw.js','utf8');
+for (const match of sw.matchAll(/'\.\/([^']+)'/g)) if (match[1] !== 'index.html') await access(root + match[1]);
+const vendor = await readFile(root + 'vendor/webp/encode.js','utf8');
+assert.ok(vendor.includes("from './features.js'"));
+console.log('JavaScript syntax, manifest icons, offline shell and local codec imports passed.');
