@@ -15,7 +15,7 @@ Mở địa chỉ bằng Safari → Chia sẻ → **Thêm vào Màn hình chính
 
 ## Sử dụng
 
-- **Chọn ảnh / Chụp ảnh**: app tự xử lý theo cấu hình hiện tại. Mặc định **JPEG · cạnh dài 1600px · mục tiêu giảm 40% dung lượng**.
+- **Chọn ảnh**: chọn nhiều ảnh trong một lượt từ thư viện ảnh iOS. **Chọn từ Tệp** là đường nhập nhiều ảnh từ Files, cũng dùng khi bộ chọn Photos trên máy không thuận tiện. Chọn thêm lượt sau sẽ nối vào phiên hiện tại; bỏ qua ảnh trùng và tệp không phải ảnh. **Chụp ảnh** dùng camera riêng. App tự xử lý theo cấu hình hiện tại, mặc định **JPEG · cạnh dài 1600px · mục tiêu giảm 40% dung lượng**.
 - **Nén ảnh → Nhập số khác**: nhập số nguyên **0–99%**, OK. 40% nghĩa là mục tiêu tệp còn tối đa 60% dung lượng gốc; 0 tắt mục tiêu nén. Có mức nhanh 20/40/60%.
 - **Kích thước**: nhập cạnh dài 1–100.000px hoặc Giữ nguyên. 3024×4032 đặt 1600px thành 1200×1600. Không cắt, không kéo méo, không tăng kích thước ảnh nhỏ.
 - **Định dạng**: JPEG, PNG, WebP. PNG/WebP giữ alpha; JPEG đặt nền trắng. WebP dùng bộ mã hóa WASM đóng gói trong repo, không cần CDN.
@@ -35,7 +35,8 @@ Mục tiêu dung lượng khác với tham số chất lượng của JPEG/WebP.
 - Canvas đầu ra là **sRGB**, đúng chiều EXIF. Không thêm bộ lọc hay chỉnh mặt. HDR/Display P3 có thể khác độ sáng/màu so với Photos; không bảo đảm giữ HDR hay metadata camera/GPS sau mã hóa.
 - HEIC/HEIF đầu vào dùng decoder hệ thống khi Safari hỗ trợ. Nếu không đọc được, app giữ tệp gốc để gửi sang Phím tắt; không giả chuyển đổi bằng đổi đuôi. HEIC/TIFF/GIF đầu ra dùng tác vụ Convert Image trong Shortcuts. GIF đầu vào xuất một khung ảnh tĩnh.
 - Mỗi phiên tối đa 50 ảnh, mỗi tệp 80MB. Bề mặt xuất giới hạn 16.777.216 pixel/cạnh tối đa 16.384px để tránh canvas quá lớn. Chọn cạnh dài nhỏ hơn khi cần. Việc giải mã còn phụ thuộc bộ nhớ và decoder của thiết bị.
-- Apple Braille được ưu tiên trong CSS, có phông hệ thống Apple dự phòng cho ký tự thiếu. Nút viên thuốc, SVG phía trên và nhãn phía dưới; lựa chọn bật màu xanh dương.
+- Apple Braille được ưu tiên trong CSS, có phông hệ thống Apple dự phòng cho ký tự thiếu. Tám nút vuông bo góc như icon ứng dụng, SVG phía trên và nhãn phía dưới; lựa chọn bật màu xanh dương. Viền 1px **#D6D6D6** ở chế độ sáng, **#474747** ở chế độ tối.
+- Hàng trên: Chọn ảnh, Chụp ảnh, Kích thước, Nén ảnh. Hàng dưới: Định dạng, Phím tắt, Lưu tệp, Dọn ảnh. Vùng kết quả cuộn độc lập ở giữa, nút Chia sẻ luôn hiện ngay phía trên hàng dưới; hai hàng giữ bốn nút trên điện thoại, iPad và khi xoay ngang.
 
 ## Phím tắt
 
@@ -60,4 +61,4 @@ Local preview: http://127.0.0.1:4173/Nen-Anh/. Có thể dùng browser có sẵn
 
 `npm run vendor` tái tạo các asset WebP từ phiên bản khóa trong package-lock; `npm run icons` tái tạo PNG từ SVG. Codec và giấy phép đã nằm trong repo, không tải runtime từ bên ngoài. Xem [CHECKS.md](CHECKS.md) và [THIRD_PARTY.md](THIRD_PARTY.md).
 
-Khi phát hành bản mới, cập nhật VERSION trong `js/utils.js`, phiên bản package, tên cache trong `sw.js` và cache URL của JS/CSS trong HTML. App chờ Sếp lưu/dọn phiên trước khi kích hoạt bản cập nhật để tránh mất ảnh đang làm.
+Khi phát hành bản mới, cập nhật VERSION trong `js/utils.js`, phiên bản package, tên cache trong `sw.js` và cache URL của JS/CSS trong HTML. App chờ Sếp lưu/dọn phiên trước khi kích hoạt bản cập nhật để tránh mất ảnh đang làm. Nếu đang thấy giao diện cũ, mở app khi có mạng, lưu/dọn phiên rồi vào **Cài đặt → Cập nhật ứng dụng**. Phiên bản giao diện mới là **1.1.0**.

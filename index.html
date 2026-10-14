@@ -15,7 +15,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/app.css?v=1.0.0">
+  <link rel="stylesheet" href="css/app.css?v=1.1.0">
   <script>
     try { var s = JSON.parse(localStorage.getItem('anhgon.settings') || '{}'); if (s && (s.theme === 'light' || s.theme === 'dark')) document.documentElement.dataset.theme = s.theme; } catch (_) {}
   </script>
@@ -26,16 +26,13 @@
       <div class="brand"><img src="icons/icon.svg" alt="" width="40" height="40"><div><h1>Ảnh Gọn</h1><p>Gọn ảnh · nhanh báo cáo</p></div></div>
       <button class="round-button" id="settingsButton" type="button" aria-label="Cài đặt" data-icon="settings"></button>
     </header>
-    <div class="tools" aria-label="Công cụ ảnh">
-      <button class="pill" id="pickButton" type="button" data-icon="photos"><span>Chọn ảnh</span></button>
-      <button class="pill" id="cameraButton" type="button" data-icon="camera"><span>Chụp ảnh</span></button>
-      <button class="pill active" id="resizeButton" type="button" data-icon="resize"><span>Kích thước</span><small id="edgeLabel">1600 px</small></button>
-      <button class="pill active" id="compressButton" type="button" data-icon="compress"><span>Nén ảnh</span><small id="reduceLabel">Giảm 40%</small></button>
-      <button class="pill" id="formatButton" type="button" data-icon="format"><span>Định dạng</span><small id="formatLabel">JPEG</small></button>
-      <button class="pill" id="shortcutButton" type="button" data-icon="shortcuts"><span>Phím tắt</span></button>
-      <button class="pill" id="downloadButton" type="button" data-icon="download" disabled><span>Lưu tệp</span></button>
-      <button class="pill" id="clearButton" type="button" data-icon="trash" disabled><span>Dọn ảnh</span></button>
-    </div>
+    <nav class="tools tools-top" aria-label="Chọn và chỉnh ảnh">
+      <button class="tool-button" id="pickButton" type="button" data-icon="photos" aria-label="Chọn một hoặc nhiều ảnh"><span>Chọn ảnh</span><small>Nhiều ảnh</small></button>
+      <button class="tool-button" id="cameraButton" type="button" data-icon="camera"><span>Chụp ảnh</span></button>
+      <button class="tool-button active" id="resizeButton" type="button" data-icon="resize"><span>Kích thước</span><small id="edgeLabel">1600 px</small></button>
+      <button class="tool-button active" id="compressButton" type="button" data-icon="compress"><span>Nén ảnh</span><small id="reduceLabel">Giảm 40%</small></button>
+    </nav>
+    <div class="workspace">
     <main id="main" class="main">
       <section class="summary" id="summary" hidden aria-label="Tổng kết">
         <div><strong id="readyCount">0 ảnh</strong><span id="sizeSummary"></span></div><b id="savingSummary">—</b>
@@ -44,11 +41,12 @@
         <div class="progress-line"><span id="progressText" role="status"></span><button id="cancelButton" class="text-button" type="button">Hủy</button></div>
         <progress id="progressBar" max="1" value="0"></progress>
       </section>
-      <div class="select-line" id="selectLine" hidden><button id="selectAllButton" class="text-button" type="button">Chọn tất cả</button><span id="selectionCount"></span></div>
+      <div class="select-line" id="selectLine" hidden><button id="selectAllButton" class="text-button" type="button">Chọn tất cả</button><button id="filePickButton" class="text-button" type="button">Chọn từ Tệp</button><span id="selectionCount"></span></div>
       <section id="empty" class="empty">
         <div class="empty-art" aria-hidden="true"><svg viewBox="0 0 190 150" fill="none"><rect x="35" y="21" width="114" height="100" rx="22" transform="rotate(-8 35 21)" fill="currentColor" opacity=".12"/><rect x="38" y="24" width="114" height="100" rx="22" fill="currentColor"/><path d="m58 102 25-29 18 17 18-23 18 35" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="72" cy="55" r="9" fill="white"/><circle cx="145" cy="115" r="23" fill="var(--card)"/><path d="m134 115 7 7 15-16" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h2>Ảnh gọn, gửi nhanh.</h2><p>Chọn một hoặc nhiều ảnh.<br>App tự thu nhỏ, nén và chuẩn bị để gửi.</p>
-        <button id="emptyPick" class="primary-button" type="button">Chọn ảnh đầu tiên</button>
+        <button id="emptyPick" class="primary-button" type="button">Chọn nhiều ảnh</button>
+        <button id="emptyFilePick" class="text-button file-alternative" type="button">Chọn ảnh từ Tệp</button>
         <p class="privacy">Ảnh gốc giữ nguyên · xử lý trên thiết bị</p>
       </section>
       <section id="gallery" class="gallery" aria-label="Ảnh đã chọn"></section>
@@ -56,12 +54,20 @@
       <p class="offline-state" id="offlineState" hidden></p>
     </main>
     <footer class="footer"><div><span id="footerStatus">Sẵn sàng nhận ảnh</span><small id="footerDetail">JPEG · 1600 px · giảm 40%</small></div><button id="shareButton" class="share-button" type="button" disabled data-icon="share"><span>Chia sẻ ảnh</span></button></footer>
+    </div>
+    <nav class="tools tools-bottom" aria-label="Xuất và quản lý ảnh">
+      <button class="tool-button" id="formatButton" type="button" data-icon="format"><span>Định dạng</span><small id="formatLabel">JPEG</small></button>
+      <button class="tool-button" id="shortcutButton" type="button" data-icon="shortcuts"><span>Phím tắt</span></button>
+      <button class="tool-button" id="downloadButton" type="button" data-icon="download" disabled><span>Lưu tệp</span></button>
+      <button class="tool-button" id="clearButton" type="button" data-icon="trash" disabled><span>Dọn ảnh</span></button>
+    </nav>
   </div>
-  <input id="photoInput" type="file" multiple accept="image/*,.heic,.heif" hidden>
+  <input id="photoInput" type="file" multiple accept="image/*" hidden>
+  <input id="fileInput" type="file" multiple hidden>
   <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden>
   <dialog id="dialog" aria-labelledby="dialogTitle"><div class="dialog-head"><h2 id="dialogTitle"></h2><button type="button" id="dialogClose" class="round-button" aria-label="Đóng" data-icon="close"></button></div><div id="dialogBody" class="dialog-body"></div></dialog>
   <div id="toast" class="toast" role="status" hidden></div>
   <noscript>Cần bật JavaScript để xử lý ảnh trên thiết bị.</noscript>
-  <script type="module" src="js/app.js?v=1.0.0"></script>
+  <script type="module" src="js/app.js?v=1.1.0"></script>
 </body>
 </html>

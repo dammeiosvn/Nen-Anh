@@ -1,4 +1,4 @@
-const CACHE = 'anh-gon-1.0.0';
+const CACHE = 'anh-gon-1.1.0';
 const SHELL = [
   './','./index.html','./css/app.css','./manifest.webmanifest',
   './js/app.js','./js/utils.js','./js/engine.js','./js/icons.js','./js/bridge.js','./js/webp-worker.js',

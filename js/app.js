@@ -304,10 +304,11 @@ function addFiles(files) {
     .finally(() => { importing--; renderSummary(); });
 }
 async function importFiles(files,epoch) {
-  let added = 0, skipped = 0;
+  let added = 0, skipped = 0, unsupported = 0;
   for (const file of files) {
     if (epoch !== importEpoch) break;
     if (state.items.length >= 50) { toast('Mỗi phiên tối đa 50 ảnh. Chia sẻ hoặc dọn phiên để thêm tiếp.'); break; }
+    if (file.type === 'image/svg+xml' || (!file.type.startsWith('image/') && !/\.(jpe?g|png|webp|hei[cf]|avif|bmp|gif|tiff?)$/i.test(file.name))) { unsupported++; continue; }
     if (file.size > 80 * 1000000) { toast('Một ảnh vượt 80 MB. Hãy xử lý riêng bằng Phím tắt.'); continue; }
     // Photos providers may change lastModified on every pick. Compare bytes
     // to avoid both duplicate imports and dropping a different same-name file.
@@ -321,7 +322,10 @@ async function importFiles(files,epoch) {
     const item = { id: String(++nextId), file, fingerprint, selected: true, status: 'queued', signature: '', result: null, originalURL: '', outputURL: '' };
     state.items.push(item); card(item); added++;
   }
-  if (skipped) toast(`Đã bỏ qua ${skipped} ảnh trùng trong phiên.`);
+  const messages = [];
+  if (skipped) messages.push(`Bỏ qua ${skipped} ảnh trùng.`);
+  if (unsupported) messages.push(`Bỏ qua ${unsupported} tệp không phải ảnh hỗ trợ.`);
+  if (messages.length) toast(messages.join(' '));
   renderSummary(); if (added) { notice(''); requestRun(); }
 }
 function clearItems(selectedOnly = false) {
@@ -343,8 +347,13 @@ function showClear() {
   });
 }
 $('pickButton').onclick = $('emptyPick').onclick = () => $('photoInput').click();
+$('filePickButton').onclick = $('emptyFilePick').onclick = () => $('fileInput').click();
 $('cameraButton').onclick = () => $('cameraInput').click();
-for (const id of ['photoInput','cameraInput']) $(id).onchange = () => { addFiles(Array.from($(id).files)); $(id).value = ''; };
+for (const id of ['photoInput','fileInput','cameraInput']) $(id).onchange = () => {
+  // Snapshot the entire FileList before resetting so later picks can append.
+  const files = Array.from($(id).files || []); $(id).value = '';
+  if (files.length) addFiles(files);
+};
 $('resizeButton').onclick = showResize; $('compressButton').onclick = showCompression; $('formatButton').onclick = showFormat;
 $('shortcutButton').onclick = showShortcuts; $('settingsButton').onclick = showSettings; $('clearButton').onclick = showClear;
 $('shareButton').onclick = () => nativeShare(outputFiles()); $('downloadButton').onclick = () => showSave();
@@ -363,7 +372,10 @@ if ('serviceWorker' in navigator) {
     registration = result;
     await Promise.race([navigator.serviceWorker.ready, new Promise((_,reject) => setTimeout(() => reject(new Error('Offline cache timeout')),30000))]);
     offlineStatus(navigator.onLine ? 'Sẵn sàng dùng offline' : 'Đang offline · vẫn xử lý ảnh trên máy');
-    result.addEventListener('updatefound', () => { const worker = result.installing; worker?.addEventListener('statechange', () => { if (worker.state === 'installed' && navigator.serviceWorker.controller) toast('Có bản mới. Mở Cài đặt để cập nhật khi đã lưu ảnh.'); }); });
+    const offerUpdate = () => toast('Có bản mới. Mở Cài đặt để cập nhật khi đã lưu ảnh.');
+    if (result.waiting) offerUpdate();
+    result.addEventListener('updatefound', () => { const worker = result.installing; worker?.addEventListener('statechange', () => { if (worker.state === 'installed' && navigator.serviceWorker.controller) offerUpdate(); }); });
+    void result.update().catch(() => {});
   }).catch(() => offlineStatus('Chưa lưu được app để mở offline. Lần sau hãy mở khi có mạng.'));
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (updateRequested) location.reload(); });
 }

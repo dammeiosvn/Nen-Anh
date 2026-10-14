@@ -1,4 +1,4 @@
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 export const DEFAULTS = Object.freeze({ longEdge: 1600, reduction: 40, format: 'jpeg', theme: 'system', shortcutName: 'Ảnh Gọn – Nhận ảnh' });
 export const MIME = Object.freeze({ jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' });
 export function imageMime(bytes) {

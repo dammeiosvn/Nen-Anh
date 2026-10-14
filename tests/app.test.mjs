@@ -35,11 +35,28 @@ async function output(page) {
 }
 test('batch import defaults to JPEG/1600px/40%, ignores duplicates and reports real byte savings',async t => {
   const {page}=await open(t);
-  await page.locator('#photoInput').setInputFiles([upload(),upload(photo,'Đơn 2.png')]); await done(page,2);
+  const chooserPromise=page.waitForEvent('filechooser'); await page.locator('#pickButton').tap();
+  const chooser=await chooserPromise; assert.equal(chooser.isMultiple(),true);
+  await chooser.setFiles([upload(),upload(photo,'Đơn 2.png')]); await done(page,2);
   assert.equal(await page.locator('.photo-dims').first().textContent(),'2000 × 1500 → 1600 × 1200');
   const result=await output(page); assert.equal(result.meta.format,'jpeg'); assert.equal(result.meta.width,1600); assert.equal(result.meta.height,1200); assert.ok(result.bytes.length <= photo.length*.6);
   await page.locator('#photoInput').setInputFiles(upload()); await page.waitForFunction(()=>document.querySelector('#toast').textContent.includes('trùng')); assert.equal(await page.locator('.photo-card').count(),2);
   assert.match(await page.locator('#savingSummary').textContent(),/−\d+%/);
+});
+test('Files picker imports the whole batch, filters non-images and appends a later selection',async t => {
+  const {page}=await open(t);
+  const firstPromise=page.waitForEvent('filechooser'); await page.locator('#emptyFilePick').tap();
+  const first=await firstPromise; assert.equal(first.isMultiple(),true);
+  await first.setFiles([upload(alpha,'Một.png'),upload(alpha,'Hai.png'),upload(Buffer.from('pdf'),'Giấy tờ.pdf','application/pdf')]); await done(page,2);
+  assert.match(await page.locator('#toast').textContent(),/1 tệp không phải ảnh/);
+  const secondPromise=page.waitForEvent('filechooser'); await page.locator('#filePickButton').tap();
+  const second=await secondPromise; assert.equal(second.isMultiple(),true);
+  await second.setFiles([upload(alpha,'Một.png'),upload(alpha,'Ba.png')]); await done(page,3);
+  assert.deepEqual(await page.locator('.photo-title').allTextContents(),['Một.png','Hai.png','Ba.png']);
+  assert.equal(await page.locator('#selectionCount').textContent(),'3 ảnh được chọn');
+  const cameraPromise=page.waitForEvent('filechooser'); await page.locator('#cameraButton').tap();
+  const camera=await cameraPromise; assert.equal(camera.isMultiple(),false);
+  assert.equal(await page.locator('#cameraInput').getAttribute('capture'),'environment');
 });
 test('custom percentage and arbitrary long edge validate, reprocess from originals and persist',async t => {
   const {page}=await open(t); await page.locator('#photoInput').setInputFiles(upload()); await done(page);
@@ -118,15 +135,44 @@ test('cancel terminates pending WebP work; resume and switching format do not pu
 });
 test('system theme, numeric keyboard modal and phone/iPad/landscape layouts keep controls usable',async t => {
   const {page}=await open(t); await page.emulateMedia({colorScheme:'dark'}); const dark=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()); assert.equal(dark,'#0c0d10');
+  assert.equal(await page.locator('#pickButton').evaluate(el=>getComputedStyle(el).borderTopColor),'rgb(71, 71, 71)');
   await page.emulateMedia({colorScheme:'light'}); assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()),'#f4f5f8');
+  assert.equal(await page.locator('#pickButton').evaluate(el=>getComputedStyle(el).borderTopColor),'rgb(214, 214, 214)');
+  await page.locator('#settingsButton').tap(); await page.locator('[data-theme="dark"]').tap();
+  assert.equal(await page.locator('#resizeButton').evaluate(el=>getComputedStyle(el).borderTopColor),'rgb(71, 71, 71)');
+  await page.locator('[data-theme="light"]').tap();
+  assert.equal(await page.locator('#resizeButton').evaluate(el=>getComputedStyle(el).borderTopColor),'rgb(214, 214, 214)');
+  await page.locator('[data-theme="system"]').tap(); await page.locator('#dialogClose').tap();
   await fs.mkdir(path.join(root,'test-results'),{recursive:true});
   for(const [w,h] of [[390,844],[320,568],[820,1180],[667,375],[390,300]]) {
     await page.setViewportSize({width:w,height:h}); await page.waitForTimeout(60);
+    const top=await page.locator('.tools-top').boundingBox(),bottom=await page.locator('.tools-bottom').boundingBox(),main=await page.locator('#main').boundingBox();
+    assert.ok(main.y>=top.y+top.height-1 && main.y+main.height<=bottom.y+1 && main.height>0);
+    assert.deepEqual(await page.locator('.tools-top button').evaluateAll(els=>els.map(el=>el.id)),['pickButton','cameraButton','resizeButton','compressButton']);
+    assert.deepEqual(await page.locator('.tools-bottom button').evaluateAll(els=>els.map(el=>el.id)),['formatButton','shortcutButton','downloadButton','clearButton']);
+    for (const tool of await page.locator('.tool-button').all()) {
+      const b=await tool.boundingBox(); assert.ok(Math.abs(b.width-b.height)<1 && b.width>=44 && b.x>=0 && b.x+b.width<=w+1 && b.y>=0 && b.y+b.height<=h+1,JSON.stringify({w,h,id:await tool.getAttribute('id'),...b}));
+      assert.equal(await tool.evaluate(el=>getComputedStyle(el).borderTopWidth),'1px');
+    }
     const share=await page.locator('#shareButton').boundingBox(); assert.ok(share.y+share.height <= h+1 && share.width>=44 && share.height>=44);
     await page.locator('#resizeButton').click(); const modal=await page.locator('#dialog').boundingBox(); assert.ok(modal.y>=-1 && modal.y+modal.height<=h+1);
     assert.ok(await page.locator('#numberInput').evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=16));
     await page.locator('#dialogClose').click(); await page.screenshot({path:path.join(root,`test-results/${browserType.name()}-${w}-${h}.png`)});
   }
+});
+test('gallery scrolls between fixed tool rows without hiding the last photo or moving controls',async t => {
+  const {page}=await open(t);
+  await page.locator('#photoInput').setInputFiles(Array.from({length:12},(_,i)=>upload(alpha,`Báo cáo ${i+1}.png`))); await done(page,12);
+  const before={top:await page.locator('.tools-top').boundingBox(),bottom:await page.locator('.tools-bottom').boundingBox(),share:await page.locator('#shareButton').boundingBox()};
+  await page.locator('.photo-card').last().scrollIntoViewIfNeeded();
+  assert.ok(await page.locator('#main').evaluate(el=>el.scrollTop>0));
+  const main=await page.locator('#main').boundingBox(),last=await page.locator('.photo-card').last().boundingBox();
+  assert.ok(last.y+last.height<=main.y+main.height+1);
+  assert.deepEqual({top:await page.locator('.tools-top').boundingBox(),bottom:await page.locator('.tools-bottom').boundingBox(),share:await page.locator('#shareButton').boundingBox()},before);
+  await page.screenshot({path:path.join(root,`test-results/${browserType.name()}-batch-light.png`)});
+  await page.emulateMedia({colorScheme:'dark'}); await page.waitForTimeout(200);
+  assert.equal(await page.locator('#pickButton').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(20, 20, 20)');
+  await page.screenshot({path:path.join(root,`test-results/${browserType.name()}-batch-dark.png`)});
 });
 test('service worker caches app and local WebP codec for offline reload at GitHub Pages subpath',async t => {
   const {page,context}=await open(t,{serviceWorkers:'allow'}); await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:30000});
