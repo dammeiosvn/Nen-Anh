@@ -1,5 +1,5 @@
 {
-  "id": "./", "name": "Ảnh Gọn · Nén ảnh", "short_name": "Ảnh Gọn", "lang": "vi",
+  "id": "./", "name": "Nén Ảnh", "short_name": "Nén Ảnh", "lang": "vi",
   "description": "Nén ảnh, thu nhỏ đúng tỷ lệ và chia sẻ nhanh trên iPhone.",
   "start_url": "./", "scope": "./", "display": "standalone",
   "background_color": "#f4f5f8", "theme_color": "#f4f5f8",

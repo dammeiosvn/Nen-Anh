@@ -1,12 +1,12 @@
-# Kiểm chứng Ảnh Gọn 2.0.0
+# Kiểm chứng Nén Ảnh 2.0.1
 
-Ngày 14/10/2026. Preview tại `/Nen-Anh/`, cùng subpath GitHub Pages.
+Ngày 15/10/2026. Preview tại `/Nen-Anh/`, cùng subpath GitHub Pages.
 
 ## Kết quả
 
 - **26/26 Chromium** cục bộ: 20 nhóm trình duyệt, 6 nhóm logic. Cùng bộ kiểm tra chạy trên Chromium/WebKit trong [GitHub Actions](https://github.com/dammeiosvn/Nen-Anh/actions).
 - Kiểm tra cú pháp, manifest/icon, asset offline, codec và wrapper OCR cục bộ đạt.
-- Đã xem ảnh render giao diện sáng/tối, giao hàng và màn hình 320×568. Kiểm tra giới hạn điều khiển/ngăn kéo ở 390×844, 320×568, 820×1180, 667×375 và 390×300.
+- Đã xem ảnh render giao diện sáng/tối, giao hàng và màn hình 320×568. Đã kiểm tra giao diện trống chỉ có SVG xanh và một dòng chữ, footer chỉ có nút gửi, các menu đã bỏ đoạn hướng dẫn; liên kết thương hiệu đúng URL và hiệu ứng tự tắt với Giảm chuyển động. Kiểm tra giới hạn điều khiển/ngăn kéo ở 390×844, 320×568, 820×1180, 667×375 và 390×300.
 
 ## Các kiểm tra chính
 
@@ -30,4 +30,4 @@ Kiểm tra codec dùng ảnh thật có màu, alpha, entropy và EXIF. Kiểm tr
 
 Chromium offline dùng setOffline. WebKit mất origin server để kiểm tra Service Worker thực vì [Playwright #42775](https://github.com/microsoft/playwright/issues/42775) chặn cả phản hồi cache khi dùng setOffline. OCR cache tải theo nhu cầu, không nằm trong gói shell nén ảnh ban đầu.
 
-Chưa thử bản 2.0 trên iPhone thật: camera, Photos picker, HEIC decoder hệ thống, bảng chia sẻ vào nhóm, Shortcuts, HDR/Display P3, giới hạn RAM và việc iOS tự dọn cache. WebKit Linux không phải WKWebView iPhone. OCR chữ mờ, nghiêng, viết tay hoặc thiếu Đơn vị: có thể cần Sếp nhập/sửa tay; app không cam kết tên đúng tuyệt đối.
+Chưa thử bản 2.0.1 trên iPhone thật: camera, Photos picker, HEIC decoder hệ thống, bảng chia sẻ vào nhóm, Shortcuts, HDR/Display P3, giới hạn RAM và việc iOS tự dọn cache. WebKit Linux không phải WKWebView iPhone. OCR chữ mờ, nghiêng, viết tay hoặc thiếu Đơn vị: có thể cần Sếp nhập/sửa tay; app không cam kết tên đúng tuyệt đối.

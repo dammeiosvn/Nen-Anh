@@ -54,7 +54,8 @@ test('batch import defaults to JPEG/1600px/40%, ignores duplicates and reports r
 });
 test('Files picker imports the whole batch, filters non-images and appends a later selection',async t => {
   const {page}=await open(t);
-  const firstPromise=page.waitForEvent('filechooser'); await page.locator('#emptyFilePick').tap();
+  await page.locator('#moreButton').tap();
+  const firstPromise=page.waitForEvent('filechooser'); await page.locator('#filePickButton').tap();
   const first=await firstPromise; assert.equal(first.isMultiple(),true);
   await first.setFiles([upload(alpha,'Một.png'),upload(alpha,'Hai.png'),upload(Buffer.from('pdf'),'Giấy tờ.pdf','application/pdf')]); await done(page,2);
   assert.match(await page.locator('#toast').textContent(),/1 tệp không phải ảnh/);
@@ -171,7 +172,7 @@ test('gallery scrolls between fixed tool rows without hiding the last photo or m
 test('selected totals and send label follow the checked group, not the whole batch',async t=>{
   const {page}=await open(t);await page.locator('#photoInput').setInputFiles([upload(),upload(alpha,'Hai.png')]);await done(page,2);
   const all=await page.locator('#sizeSummary').textContent();await page.locator('.photo-check input').first().uncheck();
-  assert.equal(await page.locator('#selectedSummary').textContent(),'1 ảnh được chọn');assert.equal(await page.locator('#shareLabel').textContent(),'Gửi 1 ảnh');assert.notEqual(await page.locator('#sizeSummary').textContent(),all);assert.match(await page.locator('#footerStatus').textContent(),/^1 ảnh ·/);
+  assert.equal(await page.locator('#selectedSummary').textContent(),'1 ảnh được chọn');assert.equal(await page.locator('#shareLabel').textContent(),'Gửi 1 ảnh');assert.notEqual(await page.locator('#sizeSummary').textContent(),all);
   await page.locator('.photo-check input').last().uncheck();assert.equal(await page.locator('#shareButton').isEnabled(),false);assert.equal(await page.locator('#savingSummary').textContent(),'—');
 });
 test('saved profiles survive reload and preset selection is only applied on confirmation',async t=>{

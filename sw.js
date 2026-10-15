@@ -1,4 +1,4 @@
-const CACHE = 'anh-gon-2.0.0';
+const CACHE = 'anh-gon-2.0.1';
 const OCR_CACHE = 'anh-gon-ocr-6-vie-1';
 const SHELL = [
   './','./index.html','./css/app.css','./manifest.webmanifest',

@@ -198,7 +198,7 @@ function nativeShare(files) {
   if (!navigator.share || !navigator.canShare?.({ files })) {
     showSave(
       files,
-      "Thiết bị hoặc ứng dụng nhận không hỗ trợ chia sẻ nhóm ảnh này. Có thể lưu từng ảnh bên dưới.",
+      "Thiết bị không hỗ trợ chia sẻ nhóm ảnh này.",
     );
     return;
   }
@@ -210,7 +210,7 @@ function nativeShare(files) {
 }
 function showSave(
   files = outputFiles(),
-  message = "Bấm tên ảnh để lưu vào Tệp hoặc mở ảnh để lưu vào Photos qua bảng chia sẻ.",
+  message = "",
 ) {
   if (!files.length) {
     toast("Chưa có ảnh đã xử lý để lưu.");
@@ -219,7 +219,7 @@ function showSave(
   const urls = files.map((file) => URL.createObjectURL(file));
   openDialog(
     "Lưu ảnh",
-    `<p>${esc(message)}</p><div id="saveLinks"></div>`,
+    `${message ? `<p class="error-text" role="alert">${esc(message)}</p>` : ""}<div id="saveLinks"></div>`,
     () => {
       files.forEach((file, index) => {
         const link = document.createElement("a");
@@ -238,7 +238,7 @@ function showSave(
 function showShortcuts() {
   openDialog(
     "Gửi sang Phím tắt",
-    `<p>Chia sẻ ảnh trực tiếp rồi chọn Phím tắt nhận ảnh trong bảng chia sẻ iOS.</p><button id="shareToShortcut" class="primary-button full-button">${icon("share")} Chia sẻ ảnh đã nén</button><button id="shareOriginal" class="secondary-button full-button">Gửi ảnh gốc</button><hr class="divider"><label class="field-label" for="shortcutName">Chạy Phím tắt theo tên</label><div class="field-wrap"><input id="shortcutName" class="field" autocomplete="off" autocorrect="off" autocapitalize="none" value="${esc(settings.shortcutName)}" placeholder="Tên Phím tắt cầu nối"></div><p class="help">Cần Phím tắt nhận dữ liệu cầu nối. Chuẩn bị ảnh trước, sau đó bấm Chạy để iOS nhận clipboard.</p><button id="prepareBridge" class="secondary-button full-button">1. Chuẩn bị ảnh</button><button id="runShortcut" class="primary-button full-button" disabled>${icon("play")} 2. Chạy Phím tắt</button><p id="bridgeStatus" class="help" role="status"></p><a class="link" href="docs/SHORTCUTS.html" target="_blank" rel="noopener">Hướng dẫn tạo Phím tắt cầu nối</a>`,
+    `<button id="shareToShortcut" class="primary-button full-button">${icon("share")} Chia sẻ ảnh đã nén</button><button id="shareOriginal" class="secondary-button full-button">Gửi ảnh gốc</button><hr class="divider"><label class="field-label" for="shortcutName">Tên Phím tắt</label><div class="field-wrap"><input id="shortcutName" class="field" autocomplete="off" autocorrect="off" autocapitalize="none" value="${esc(settings.shortcutName)}" placeholder="Tên Phím tắt"></div><button id="prepareBridge" class="secondary-button full-button">1. Chuẩn bị ảnh</button><button id="runShortcut" class="primary-button full-button" disabled>${icon("play")} 2. Chạy Phím tắt</button><p id="bridgeStatus" class="operation-status" role="status"></p>`,
     () => {
       $("shareToShortcut").disabled =
         selectedReady().length === 0 || state.running;
@@ -267,7 +267,7 @@ function showShortcuts() {
           clipboardData = payload;
           $("runShortcut").disabled = false;
           $("bridgeStatus").textContent =
-            `Đã chuẩn bị ${files.length} ảnh. Bấm Chạy Phím tắt để chuyển.`;
+            `Đã chuẩn bị ${files.length} ảnh.`;
         } catch (error) {
           if (generation === bridgeGeneration && error.name !== "AbortError")
             $("bridgeStatus").textContent = error.message;
@@ -304,7 +304,7 @@ function showShortcuts() {
             settings.shortcutName = name;
             persistSettings();
             $("bridgeStatus").textContent =
-              "Đã chuyển dữ liệu. Đang mở Phím tắt…";
+              "Đang mở Phím tắt…";
             location.href = url;
           })
           .catch(() => {
@@ -320,8 +320,6 @@ function showShortcuts() {
   );
 }
 function showSettings() {
-  const standalone =
-    navigator.standalone || matchMedia("(display-mode: standalone)").matches;
   openDialog(
     "Cài đặt",
     `<p class="field-label">Giao diện</p><div class="choices">${[
@@ -335,7 +333,7 @@ function showSettings() {
       )
       .join(
         "",
-      )}</div><hr class="divider"><p class="help">${standalone ? "Đang chạy từ màn hình chính." : "Trên Safari: bấm Chia sẻ → Thêm vào Màn hình chính để dùng như ứng dụng."}</p><p class="help">Ảnh chỉ xử lý trên máy, không tải lên máy chủ. App nhớ cài đặt; ảnh của phiên được dọn khi tải lại. Hãy chia sẻ hoặc lưu trước khi đóng.</p><p class="help">Mỗi phiên tối đa 50 ảnh, mỗi tệp 80 MB. JPEG/WebP giữ mức chất lượng tối thiểu 82%; mục tiêu dung lượng có thể chưa đạt ở ảnh đã rất nhẹ. PNG không dùng mức giảm chất lượng.</p><p class="help">Apple Braille ưu tiên, phông hệ thống Apple dự phòng. HDR/Display P3 được đưa về sRGB để gửi báo cáo; có thể khác độ sáng/màu của Photos.</p><p class="help">Phiên bản ${VERSION} · ${navigator.onLine ? "Có mạng" : "Đang offline"}</p>${registration?.waiting ? '<button class="primary-button full-button" id="updateApp">Cập nhật ứng dụng</button>' : ""}<button id="resetSettings" class="secondary-button full-button">Đặt lại cài đặt</button>`,
+      )}</div><hr class="divider">${registration?.waiting ? '<button class="primary-button full-button" id="updateApp">Cập nhật ứng dụng</button>' : ""}<button id="resetSettings" class="secondary-button full-button">Đặt lại cài đặt</button><p class="app-version">${VERSION}</p>`,
     () => {
       dialog.querySelectorAll("[data-theme]").forEach((button) => {
         button.onclick = () => {
@@ -431,8 +429,8 @@ function showConfiguration(seed) {
   openDialog(
     "Cấu hình ảnh",
     `<form id="configForm"><details class="drawer-section" open><summary>Cấu hình nhanh</summary><div class="preset-list">${all.map((p) => `<button class="list-row preset-row" type="button" data-preset="${p.id}">${icon(p.mode === "delivery" ? "delivery" : "photos")}<span><strong>${esc(p.name)}</strong><small>${p.longEdge ? p.longEdge + " px" : "Giữ kích thước"} · ${p.reduction ? "giảm " + p.reduction + "%" : "không ép dung lượng"} · ${p.format.toUpperCase()}</small></span><i class="preset-check" aria-hidden="true">${icon("check")}</i></button>`).join("")}</div></details>
-    <details class="drawer-section" id="advancedSettings"><summary>Tùy chỉnh kích thước, nén và định dạng</summary><label class="field-label" for="longEdgeInput">Cạnh dài · 0 để giữ kích thước</label><div class="field-wrap"><input id="longEdgeInput" class="field" inputmode="numeric" autocomplete="off" enterkeyhint="next" value="${draft.longEdge}"><span>px</span></div><label class="field-label" for="reductionInput">Giảm dung lượng · 0 là không ép dung lượng</label><div class="field-wrap"><input id="reductionInput" class="field" inputmode="numeric" autocomplete="off" enterkeyhint="done" value="${draft.reduction}"><span>%</span></div><p class="help">40% là mục tiêu còn 60% dung lượng. Thu nhỏ/chuyển định dạng vẫn làm ảnh nhẹ hơn khi đặt 0%. PNG giữ chất lượng.</p><label class="field-label" for="formatInput">Định dạng đầu ra</label><select id="formatInput" class="field field-select"><option value="jpeg">JPEG · gửi báo cáo</option><option value="png">PNG · nền trong suốt</option><option value="webp">WebP · ảnh gọn</option></select><label class="switch-line"><input id="deliveryModeInput" type="checkbox" ${draft.mode === "delivery" ? "checked" : ""}><span>Đọc tên khách từ “Đơn vị:”</span></label></details>
-    <details class="drawer-section"><summary>Lưu cấu hình riêng</summary><label class="field-label" for="profileNameInput">Tên cấu hình</label><div class="field-wrap"><input id="profileNameInput" class="field" maxlength="32" autocomplete="off" placeholder="Ví dụ: Báo cáo buổi chiều"></div><button id="saveProfile" class="secondary-button full-button" type="button">Lưu cấu hình đang chọn</button><button id="deleteProfiles" class="text-button" type="button">Xóa cấu hình riêng</button><p class="help">Tối đa 8 cấu hình. Ảnh chỉ được xử lý khi bấm Áp dụng.</p></details><p class="help" id="configNote">${draft.mode === "delivery" ? "Gửi ảnh giao hàng: mỗi ảnh có ô tên riêng và nút sao chép. Bộ đọc chữ tải trên máy khi dùng lần đầu." : "Chọn cấu hình nhanh hoặc mở Tùy chỉnh."}</p><p id="configError" class="error-text" role="alert"></p><div class="drawer-actions"><button id="modalCancel" class="secondary-button" type="button">Hủy</button><button id="modalOK" class="primary-button" type="submit">Áp dụng</button></div></form>`,
+    <details class="drawer-section" id="advancedSettings"><summary>Tùy chỉnh</summary><label class="field-label" for="longEdgeInput">Cạnh dài</label><div class="field-wrap"><input id="longEdgeInput" class="field" inputmode="numeric" autocomplete="off" enterkeyhint="next" value="${draft.longEdge}"><span>px</span></div><label class="field-label" for="reductionInput">Giảm dung lượng</label><div class="field-wrap"><input id="reductionInput" class="field" inputmode="numeric" autocomplete="off" enterkeyhint="done" value="${draft.reduction}"><span>%</span></div><label class="field-label" for="formatInput">Định dạng</label><select id="formatInput" class="field field-select"><option value="jpeg">JPEG</option><option value="png">PNG</option><option value="webp">WebP</option></select><label class="switch-line"><input id="deliveryModeInput" type="checkbox" ${draft.mode === "delivery" ? "checked" : ""}><span>Đọc tên khách từ “Đơn vị:”</span></label></details>
+    <details class="drawer-section"><summary>Lưu cấu hình riêng</summary><label class="field-label" for="profileNameInput">Tên cấu hình</label><div class="field-wrap"><input id="profileNameInput" class="field" maxlength="32" autocomplete="off" placeholder="Tên cấu hình"></div><button id="saveProfile" class="secondary-button full-button" type="button">Lưu cấu hình đang chọn</button><button id="deleteProfiles" class="text-button" type="button">Xóa cấu hình riêng</button></details><p id="configError" class="error-text" role="alert"></p><div class="drawer-actions"><button id="modalCancel" class="secondary-button" type="button">Hủy</button><button id="modalOK" class="primary-button" type="submit">Áp dụng</button></div></form>`,
     () => {
       const collect = () => {
         const longEdge = integerInput($("longEdgeInput").value, 0, 100000),
@@ -474,10 +472,6 @@ function showConfiguration(seed) {
           $("reductionInput").value = draft.reduction;
           $("formatInput").value = draft.format;
           $("deliveryModeInput").checked = draft.mode === "delivery";
-          $("configNote").textContent =
-            draft.mode === "delivery"
-              ? "Mỗi ảnh có ô tên riêng và nút sao chép. App đọc chữ từ ảnh gốc trên máy."
-              : "Bấm Áp dụng để xử lý cả phiên một lần.";
           mark();
         };
       });
@@ -521,27 +515,26 @@ function showConfiguration(seed) {
         customProfiles = customProfilesFrom(customProfiles);
         persistProfiles();
         showConfiguration(value);
-        $("configNote").textContent =
-          "Đã lưu cấu hình. Bấm Áp dụng để xử lý ảnh.";
+        toast("Đã lưu cấu hình.");
       };
       $("deleteProfiles").onclick = () => {
         customProfiles = [];
         persistProfiles();
         showConfiguration(collect() || draft);
         renderSummary();
-        $("configNote").textContent = "Đã xóa cấu hình riêng.";
+        toast("Đã xóa cấu hình riêng.");
       };
     },
   );
 }
-function menuRow(id, name, description, which, disabled = false) {
-  return `<button id="${id}" class="list-row" type="button" ${disabled ? "disabled" : ""}>${icon(which)}<span><strong>${name}</strong><small>${description}</small></span>${icon("chevron", "row-chevron")}</button>`;
+function menuRow(id, name, which, disabled = false) {
+  return `<button id="${id}" class="list-row" type="button" ${disabled ? "disabled" : ""}>${icon(which)}<span><strong>${name}</strong></span>${icon("chevron", "row-chevron")}</button>`;
 }
 function showMore() {
   const canExport = selectedReady().length > 0 && !state.running && !importing;
   openDialog(
     "Công cụ ảnh",
-    `<details class="drawer-section" open><summary>Thêm ảnh</summary>${menuRow("cameraButton", "Chụp ảnh", "Camera sau của iPhone", "camera")}${menuRow("filePickButton", "Chọn từ Tệp", "Chọn nhiều ảnh cùng lúc", "format")}</details><details class="drawer-section" open><summary>Xuất và quản lý</summary>${menuRow("downloadButton", "Lưu tệp", "Lưu các ảnh đang chọn", "download", !canExport)}${menuRow("shortcutButton", "Phím tắt", "Gửi ảnh gốc hoặc kết quả sang iOS", "shortcuts")}${menuRow("clearButton", "Dọn ảnh", "Dọn nhóm được chọn hoặc cả phiên", "trash", !state.items.length)}</details><details class="drawer-section"><summary>Cấu hình và hỗ trợ</summary>${menuRow("moreConfig", "Cấu hình ảnh", "Chế độ, kích thước, nén, định dạng", "sliders")}${menuRow("moreSettings", "Cài đặt", "Giao diện, cập nhật và hướng dẫn", "settings")}</details>`,
+    `<details class="drawer-section" open><summary>Thêm ảnh</summary>${menuRow("cameraButton", "Chụp ảnh", "camera")}${menuRow("filePickButton", "Chọn từ Tệp", "format")}</details><details class="drawer-section" open><summary>Xuất và quản lý</summary>${menuRow("downloadButton", "Lưu tệp", "download", !canExport)}${menuRow("shortcutButton", "Phím tắt", "shortcuts")}${menuRow("clearButton", "Dọn ảnh", "trash", !state.items.length)}</details><details class="drawer-section"><summary>Tùy chọn</summary>${menuRow("moreConfig", "Cấu hình ảnh", "sliders")}${menuRow("moreSettings", "Cài đặt", "settings")}</details>`,
     () => {
       $("cameraButton").onclick = () => {
         closeDialog();
@@ -631,12 +624,12 @@ function updateCustomer(item) {
     queued: "Chờ đọc Đơn vị…",
     working: item.ocrStage || "Đang đọc chữ…",
     done: item.customerName
-      ? "Đã đọc tên · Sếp kiểm tra trước khi sao chép."
-      : "Không thấy Đơn vị: · Sếp có thể nhập tên.",
-    error: "Chưa đọc được chữ · nhập tay hoặc đọc lại.",
+      ? "Đã đọc tên"
+      : "Không thấy Đơn vị:",
+    error: "Chưa đọc được chữ",
   };
   node.querySelector(".customer-status").textContent = item.customerEdited
-    ? "Tên do Sếp chỉnh sửa."
+    ? "Đã chỉnh sửa"
     : statuses[item.ocrStatus];
   node.querySelector(".retry-ocr").disabled = item.ocrStatus === "working";
 }
@@ -735,18 +728,6 @@ function renderSummary() {
     $("prepareBridge").disabled = $("shareButton").disabled || bridgePreparing;
   if ($("shareOriginal"))
     $("shareOriginal").disabled = !originalFiles().length || importing > 0;
-  $("footerStatus").textContent = state.running
-    ? `Đang xử lý ${Math.min(state.finished + 1, state.total)}/${state.total}`
-    : importing
-      ? "Đang nhận ảnh…"
-      : selected.length
-        ? `${selected.length} ảnh · ${sizeText(after)}`
-        : state.items.length
-          ? "Chọn ảnh để gửi"
-          : "Sẵn sàng nhận ảnh";
-  $("footerDetail").textContent = state.items.length
-    ? `${ready.length}/${state.items.length} đã xong · ${settings.format.toUpperCase()}`
-    : "Thêm ảnh rồi gửi bằng một lần bấm";
   $("shareLabel").textContent = selected.length
     ? `Gửi ${selected.length} ảnh`
     : "Gửi ảnh";
@@ -758,7 +739,6 @@ function renderSummary() {
   $("profileLabel").textContent = profileName(settings, customProfiles);
   $("configLabel").textContent =
     `${settings.longEdge ? settings.longEdge + " px" : "Giữ kích thước"} · ${settings.reduction ? "giảm " + settings.reduction + "%" : "không ép dung lượng"} · ${settings.format.toUpperCase()}`;
-  $("deliveryTip").hidden = settings.mode !== "delivery";
 }
 function cancelOCR() {
   ocrEpoch++;
@@ -1055,7 +1035,7 @@ function showClear() {
   const count = state.items.filter((i) => i.selected).length;
   openDialog(
     "Dọn ảnh của phiên",
-    '<p>Ảnh gốc trong Photos/Tệp vẫn giữ nguyên. Ảnh xử lý và tên khách của phiên chưa lưu sẽ được dọn.</p><button id="clearSelected" class="secondary-button full-button">Dọn ảnh được chọn</button><button id="clearAll" class="primary-button full-button">Dọn toàn bộ</button>',
+    '<button id="clearSelected" class="secondary-button full-button">Dọn ảnh được chọn</button><button id="clearAll" class="primary-button full-button">Dọn toàn bộ</button>',
     () => {
       $("clearSelected").disabled = !count;
       $("clearSelected").textContent = `Dọn ${count} ảnh được chọn`;
@@ -1070,9 +1050,7 @@ function showClear() {
     },
   );
 }
-$("pickButton").onclick = $("emptyPick").onclick = () =>
-  $("photoInput").click();
-$("emptyFilePick").onclick = () => $("fileInput").click();
+$("pickButton").onclick = () => $("photoInput").click();
 for (const id of ["photoInput", "fileInput", "cameraInput"])
   $(id).onchange = () => {
     const files = Array.from($(id).files || []);

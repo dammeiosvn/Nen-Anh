@@ -1,16 +1,18 @@
-# Ảnh Gọn 2.0 · Nen-Anh
+# Nén Ảnh 2.0.1 · Nen-Anh
 
 WebClip nén ảnh, thu nhỏ và đọc tên khách để gửi báo cáo giao hàng trên iPhone. Chạy trên GitHub Pages; toàn bộ ảnh, OCR và tên khách xử lý trên thiết bị.
 
 ## Giao diện ngăn kéo và chế độ giao hàng
 
-- Màn hình chính: **Chọn ảnh**, ô cấu hình hiện tại và **Gửi N ảnh**. Nút **•••** mở ngăn kéo Chụp ảnh, Chọn từ Tệp, Lưu tệp, Phím tắt và Dọn ảnh.
+- Màn hình chính chỉ có một nút **Chọn ảnh** và ô cấu hình. Trạng thái trống giữ SVG xanh cùng dòng **chọn ảnh để nén**. Nút **Gửi N ảnh** nằm riêng bên phải thanh dưới; **•••** chuyển lên cạnh Cài đặt để mở ngăn kéo công cụ.
+- Tên app **Nén Ảnh**; liên kết **Sentechtipsvn** mở https://github.com/Sentechtipsvn/Image-compression, có vệt sáng chạy từ trái sang phải và tự tắt khi bật Giảm chuyển động.
+- Các menu giữ tên chức năng, giá trị cấu hình và trạng thái/lỗi cần thiết; bỏ phần hướng dẫn dài. Hướng dẫn đầy đủ tiếp tục có trong README và docs.
 - Bấm ô cấu hình để chọn **Gửi ảnh giao hàng**, **Gửi nhanh**, **Chứng từ rõ chữ** hoặc **Giữ kích thước**. Mở Tùy chỉnh để đặt cạnh dài, mức giảm 0–99%, JPEG/PNG/WebP và bật/tắt đọc tên. Các thay đổi chỉ chạy khi bấm **Áp dụng**; Hủy không đổi cấu hình.
 - **Lưu cấu hình riêng**: đặt tên và lưu tối đa 8 cấu hình; có thể lưu đè cấu hình trùng tên. Cài đặt và cấu hình riêng được nhớ qua lần mở app.
 - **Gửi ảnh giao hàng** có sẵn JPEG/1600px/mục tiêu giảm 40% và OCR tên khách. Chọn chế độ rồi thêm ảnh. Mỗi ảnh có ô tên riêng, có thể sửa ngay và bấm icon sao chép. OCR chạy sau hàng đợi xử lý ảnh; gửi ảnh không cần chờ tên đọc xong.
 - OCR đọc ảnh gốc, rồi regex bóc phần sau **Đơn vị:**. Chấp nhận chữ hoa/thường, dấu hai chấm thường/toàn chiều rộng, nhãn không dấu và tên xuống dòng; dừng trước SĐT/Điện thoại/Địa chỉ/Mã đơn. Không tự đổi dấu hoặc kiểu viết của tên. Tên Sếp nhập tay không bị kết quả OCR muộn ghi đè.
 - Nếu không thấy nhãn hoặc ảnh khó đọc, ô vẫn sửa được. Bấm **Đọc lại** để thử lại. OCR không bảo đảm đúng với chữ mờ, ảnh nghiêng, chữ viết tay hoặc bố cục phức tạp; kiểm tra tên trước khi sao chép.
-- Thống kê lớn và thanh gửi tính theo **nhóm đang chọn**; mục **Cả phiên** mở ra thống kê toàn bộ. Các thông số chi tiết của từng ảnh nằm trong mục thu gọn.
+- Thống kê lớn và nút gửi tính theo **nhóm đang chọn**; mục **Cả phiên** mở ra thống kê toàn bộ. Các thông số chi tiết của từng ảnh nằm trong mục thu gọn.
 
 ## Hiệu năng và dữ liệu
 
@@ -79,4 +81,4 @@ Local preview: http://127.0.0.1:4173/Nen-Anh/. Có thể dùng browser có sẵn
 
 `npm run vendor` tái tạo các asset WebP từ phiên bản khóa trong package-lock; `npm run icons` tái tạo PNG từ SVG. Codec và giấy phép đã nằm trong repo, không tải runtime từ bên ngoài. Xem [CHECKS.md](CHECKS.md) và [THIRD_PARTY.md](THIRD_PARTY.md).
 
-Khi phát hành bản mới, cập nhật VERSION trong `js/utils.js`, phiên bản package, tên cache trong `sw.js` và cache URL của JS/CSS trong HTML. App chờ Sếp lưu/dọn phiên trước khi kích hoạt bản cập nhật để tránh mất ảnh đang làm. Nếu đang thấy giao diện cũ, mở app khi có mạng, lưu/dọn phiên rồi vào **Cài đặt → Cập nhật ứng dụng**. Phiên bản mới là **2.0.0**.
+Khi phát hành bản mới, cập nhật VERSION trong `js/utils.js`, phiên bản package, tên cache trong `sw.js` và cache URL của JS/CSS trong HTML. App chờ Sếp lưu/dọn phiên trước khi kích hoạt bản cập nhật để tránh mất ảnh đang làm. Nếu đang thấy giao diện cũ, mở app khi có mạng, lưu/dọn phiên rồi vào **Cài đặt → Cập nhật ứng dụng**. Phiên bản mới là **2.0.1**.
